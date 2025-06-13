@@ -5,12 +5,14 @@ import java.util.Scanner;
 import ModelClasses.Criminal;
 import ModelClasses.Fir;
 import ModelClasses.Officer;
+import Database.Database;
 
 public class Main {
     private static Scanner scanner = new Scanner(System.in);
     private static OfficerQueue officerQueue = new OfficerQueue();
     private static CriminalArray criminalArray = new CriminalArray();
     private static FIRLinkedList firList = new FIRLinkedList();
+    private static Database database=new Database();
 
     public static void main(String[] args) {
         while (true) {
@@ -20,6 +22,7 @@ public class Main {
             switch (choice) {
                 case 1:
                     addOfficer();
+
                     break;
                 case 2:
                     addCriminal();
@@ -99,6 +102,7 @@ public class Main {
 
         Officer officer = new Officer(id, name, rank);
         officerQueue.addOfficer(officer);
+        database.AddInDBOfficer(officer);
         System.out.println("Officer added successfully!");
     }
 
@@ -111,6 +115,7 @@ public class Main {
 
         Criminal criminal = new Criminal(id, name, age, crimeType);
         criminalArray.insert(criminal);
+        database.AddInDBCriminal(criminal);
         System.out.println("Criminal added successfully!");
     }
 
@@ -129,6 +134,7 @@ public class Main {
 
         Fir fir = new Fir(firNumber, description, location, criminal);
         firList.addFIR(fir);
+        database.AddInDBFir(fir);
         System.out.println("FIR added successfully!");
     }
 
@@ -198,6 +204,7 @@ public class Main {
             System.out.println("Current Status: " + criminal.getStatus());
             String newStatus = getStringInput("Enter new status: ");
             criminal.setStatus(newStatus);
+            database.UpdateInCriminal(id,newStatus);
             System.out.println("Status updated successfully!");
         } else {
             System.out.println("Criminal not found!");
@@ -222,7 +229,7 @@ public class Main {
             if (!newLocation.isEmpty()) {
                 fir.setLocation(newLocation);
             }
-
+            database.UpdateInFir(firNumber,newDescription,newLocation);
             System.out.println("FIR updated successfully!");
         } else {
             System.out.println("FIR not found!");
@@ -240,6 +247,7 @@ public class Main {
         }
 
         if (officerQueue.deleteOfficer(id)) {
+            database.DeleteOfficer(id);
             System.out.println("Officer deleted successfully!");
         } else {
             System.out.println("Officer not found!");
@@ -253,6 +261,7 @@ public class Main {
         if (criminalArray.delete(id)) {
             // Also delete associated FIRs
             firList.deleteFIRsByCriminalId(id);
+            database.DeleteCriminal(id);
             System.out.println("Criminal and associated FIRs deleted successfully!");
         } else {
             System.out.println("Criminal not found!");
@@ -264,6 +273,7 @@ public class Main {
         String firNumber = getStringInput("Enter FIR Number to delete: ");
 
         if (firList.deleteFIR(firNumber)) {
+            database.DeleteFir(firNumber);
             System.out.println("FIR deleted successfully!");
         } else {
             System.out.println("FIR not found!");
